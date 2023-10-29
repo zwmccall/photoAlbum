@@ -63,30 +63,36 @@ function getData(val){
  * @param {number} albumID The ID of the filtered album.
  */
 function setImg(imgData, albumLength, albumID){
+	const thumbnail = document.getElementById("thumbnail");
+	const titleHeader = document.getElementById("titleHeader");
+	const pNumHeader = document.getElementById("pNumHeader");
+	const aNumHeader = document.getElementById("aNumHeader");
+	const filterHeader = document.getElementById("filterHeader");
+
 	if (imgData){
-		document.getElementById("thumbnail").src = imgData.thumbnailUrl;
-		document.getElementById("thumbnail").title = imgData.title;
-		document.getElementById("titleHeader").innerText = 'Title: ' + imgData.title;
-		document.getElementById("thumbnail").onclick = function() { window.open(imgData.url, '_blank'); };
-		document.getElementById("pNumHeader").innerText = 'Current Photo: ' + (curImgIndex+1) + ' of ' + albumLength;
-		document.getElementById("aNumHeader").innerText = 'Current Album: ' + imgData.albumId + ' of ' + numAlbums;
+		thumbnail.src = imgData.thumbnailUrl;
+		thumbnail.title = imgData.title;
+		thumbnail.onclick = function() { window.open(imgData.url, '_blank'); };
+		titleHeader.innerText = 'Title: ' + imgData.title;
+		pNumHeader.innerText = 'Current Photo: ' + (curImgIndex+1) + ' of ' + albumLength;
+		aNumHeader.innerText = 'Current Album: ' + imgData.albumId + ' of ' + numAlbums;
 		if (albumID != ""){
-			document.getElementById("filterHeader").innerText = 'Filter By: Album ' + albumID;
+			filterHeader.innerText = 'Filter By: Album ' + albumID;
 		} else {
-			document.getElementById("filterHeader").innerText = 'Filter By: All Images';
+			filterHeader.innerText = 'Filter By: All Images';
 		}
 		setBtns(albumLength);
 	} else {
-		document.getElementById("thumbnail").src = "";
-		document.getElementById("thumbnail").title = "";
-		document.getElementById("titleHeader").innerText = 'Title: No Data Found';
-		document.getElementById("thumbnail").onclick = function() { };
-		document.getElementById("pNumHeader").innerText = 'Current Photo: No Data Found';
-		document.getElementById("aNumHeader").innerText = 'Current Album: No Data Found';
+		thumbnail.src = "";
+		thumbnail.title = "";
+		thumbnail.onclick = function() { };
+		titleHeader.innerText = 'Title: No Data Found';
+		pNumHeader.innerText = 'Current Photo: No Data Found';
+		aNumHeader.innerText = 'Current Album: No Data Found';
 		if (albumID != ""){
-			document.getElementById("filterHeader").innerText = 'Filter By: Album ' + albumID;
+			filterHeader.innerText = 'Filter By: Album ' + albumID;
 		} else {
-			document.getElementById("filterHeader").innerText = 'Filter By: All Images';
+			filterHeader.innerText = 'Filter By: All Images';
 		}
 		setBtns(albumLength);
 		alert('No album with that ID');
@@ -99,17 +105,11 @@ function setImg(imgData, albumLength, albumID){
  * @param {number} albumLength The amount of photos in the filtered album.
  */
 function setBtns(albumLength){
-	if (curImgIndex == 0){
-		document.getElementById("prevBtn").disabled = true;
-	} else {
-		document.getElementById("prevBtn").disabled = false;
-	}
-
-	if (curImgIndex+1 == albumLength || albumLength == 0){
-		document.getElementById("nextBtn").disabled = true;
-	} else {
-		document.getElementById("nextBtn").disabled = false;
-	}
+	const prevBtn = document.getElementById("prevBtn");
+	const nextBtn = document.getElementById("nextBtn");
+	
+	prevBtn.disabled = curImgIndex === 0 ? true : false;
+	nextBtn.disabled = curImgIndex + 1 === albumLength || albumLength === 0 ? true : false;
 }
 
 var idVal = document.getElementById("idVal");
