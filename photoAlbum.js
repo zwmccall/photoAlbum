@@ -1,5 +1,5 @@
-var curImgIndex = 0;
-var numAlbums = 0;
+let curImgIndex = 0;
+let numAlbums = 0;
 
 /**
  * Does the HTTP request to get the photo data
@@ -7,52 +7,44 @@ var numAlbums = 0;
  * @param {number} val Which photo in the album to get. 0 gets the first, -1 gets previous from current, 1 gets next from current.
  */
 function getData(val){
+	const id = document.getElementById("idVal").value;
 
-	if (val == 0){
+	if (val === 0) {
 		curImgIndex = 0;
-	} else if (val == -1){
+	} else if (val === -1) {
 		curImgIndex--;
-	} else if (val == 1){
+	} else if (val === 1) {
 		curImgIndex++;
 	}
 
-	var id = document.getElementById("idVal").value;
-
-	var xhr = new XMLHttpRequest();
-
-	xhr.onreadystatechange = function () {
-		if (this.readyState != 4) return;
-
-		if (this.status == 200) {
-			var data = JSON.parse(this.responseText);
-
-			if (id == ""){
-				//This assumes data is provided in sequential album ID order
-				numAlbums = data[data.length-1].albumId;
-			}
-
-			setImg(data[curImgIndex], data.length, id)
-		}
-	};
-
 	var url = 'https://jsonplaceholder.typicode.com/photos';
 
-	//Only let user select to filter an album with a valid ID
-	if (id != "" && (id <= 0 || id > numAlbums)){
-		if (id <= 0){
-			alert('Album ID value must be greater than zero!');
-		} else if (id > numAlbums){
-			alert('Album ID value must be less than the number of albums!');
+	// Validate album ID
+	if (id !== "") {
+		if (id <= 0 || id > numAlbums) {
+			alert('Album ID must be a valid value (greater than zero and less than or equal to the number of albums).');
+			return false;
 		}
-		return false;
+		url += '?albumId=' + id;
 	}
 
-	if (id != ""){
-		url += '?albumId=' + id
-	}
-
-	xhr.open('GET', url, true);
-	xhr.send();
+	fetch(url)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+			return response.json();
+		})
+		.then(data => {
+			if (id === "") {
+				// This assumes data is provided in sequential album ID order
+				numAlbums = data[data.length - 1].albumId;
+			}
+			setImg(data[curImgIndex], data.length, id);
+		})
+		.catch(error => {
+			alert('Error: ' + error.message);
+		});
 }
 
 /**
@@ -112,7 +104,7 @@ function setBtns(albumLength){
 	nextBtn.disabled = curImgIndex + 1 === albumLength || albumLength === 0 ? true : false;
 }
 
-var idVal = document.getElementById("idVal");
+const idVal = document.getElementById("idVal");
 idVal.addEventListener("keydown", function (e) {
 	if (e.code === "Enter") {
 		getData(0);
