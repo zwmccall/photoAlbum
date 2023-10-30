@@ -17,15 +17,12 @@ function getData(val){
 		curImgIndex++;
 	}
 
-	var url = 'https://jsonplaceholder.typicode.com/photos';
+	const url = `https://jsonplaceholder.typicode.com/photos${id ? `?albumId=${id}` : ''}`;
 
 	// Validate album ID
-	if (id !== "") {
-		if (id <= 0 || id > numAlbums) {
-			alert('Album ID must be a valid value (greater than zero and less than or equal to the number of albums).');
-			return false;
-		}
-		url += '?albumId=' + id;
+	if (id !== "" && (id <= 0 || id > numAlbums)) {
+		alert('Album ID must be a valid value (greater than zero and less than or equal to the number of albums).');
+		return false;
 	}
 
 	fetch(url)
@@ -64,31 +61,23 @@ function setImg(imgData, albumLength, albumID){
 	if (imgData){
 		thumbnail.src = imgData.thumbnailUrl;
 		thumbnail.title = imgData.title;
-		thumbnail.onclick = function() { window.open(imgData.url, '_blank'); };
-		titleHeader.innerText = 'Title: ' + imgData.title;
-		pNumHeader.innerText = 'Current Photo: ' + (curImgIndex+1) + ' of ' + albumLength;
-		aNumHeader.innerText = 'Current Album: ' + imgData.albumId + ' of ' + numAlbums;
-		if (albumID != ""){
-			filterHeader.innerText = 'Filter By: Album ' + albumID;
-		} else {
-			filterHeader.innerText = 'Filter By: All Images';
-		}
+		thumbnail.onclick = () => window.open(imgData.url, '_blank');
+		titleHeader.innerText = `Title: ${imgData.title}`;
+		pNumHeader.innerText = `Current Photo: ${curImgIndex + 1} of ${albumLength}`;
+		aNumHeader.innerText = `Current Album: ${imgData.albumId} of ${numAlbums}`;
+		filterHeader.innerText = `Filter By: ${albumID ? `Album ${albumID}` : 'All Images'}`;
 		setBtns(albumLength);
 	} else {
 		thumbnail.src = "";
 		thumbnail.title = "";
-		thumbnail.onclick = function() { };
+		thumbnail.onclick = () => {};
 		titleHeader.innerText = 'Title: No Data Found';
 		pNumHeader.innerText = 'Current Photo: No Data Found';
 		aNumHeader.innerText = 'Current Album: No Data Found';
-		if (albumID != ""){
-			filterHeader.innerText = 'Filter By: Album ' + albumID;
-		} else {
-			filterHeader.innerText = 'Filter By: All Images';
-		}
-		setBtns(albumLength);
+		filterHeader.innerText = `Filter By: ${albumID ? `Album ${albumID}` : 'All Images'}`;
 		alert('No album with that ID');
 	}
+	setBtns(albumLength);
 }
 
 /**
