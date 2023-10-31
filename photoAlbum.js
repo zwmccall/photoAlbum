@@ -1,12 +1,14 @@
 let curImgIndex = 0;
 let numAlbums = 0;
+let dataCache = null;
+let lastId = null;
 
 /**
- * Does the HTTP request to get the photo data
+ * Get and display the information for the necessary image.
  *
  * @param {number} val Which photo in the album to get. 0 gets the first, -1 gets previous from current, 1 gets next from current.
  */
-function getData(val){
+function getImg(val) {
 	const id = document.getElementById("idVal").value;
 
 	if (val === 0) {
@@ -17,41 +19,53 @@ function getData(val){
 		curImgIndex++;
 	}
 
-	const url = `https://jsonplaceholder.typicode.com/photos${id ? `?albumId=${id}` : ''}`;
-
-	// Validate album ID
+	//Validate album ID
 	if (id !== "" && (id <= 0 || id > numAlbums)) {
 		alert('Album ID must be a valid value (greater than zero and less than or equal to the number of albums).');
 		return false;
 	}
 
-	fetch(url)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-			return response.json();
-		})
-		.then(data => {
-			if (id === "") {
-				// This assumes data is provided in sequential album ID order
-				numAlbums = data[data.length - 1].albumId;
-			}
-			setImg(data[curImgIndex], data.length, id);
-		})
-		.catch(error => {
-			alert('Error: ' + error.message);
-		});
+	//Only do a new request if Album ID has changed, otherwise iterate over current data
+	if(id != lastId){
+		fetchData(id);
+		lastId = id;
+	} else{
+		setImg(dataCache[curImgIndex], dataCache.length, id);
+	}
+}
+
+/**
+ * Does the fetch request to get the photo data.
+ *
+ * @param {number} albumId Which Album ID to filter by.
+ */
+async function fetchData(albumId) {
+	const url = `https://jsonplaceholder.typicode.com/photos${albumId ? `?albumId=${albumId}` : ''}`;
+
+	try {
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		const data = await response.json();
+		if (albumId === "") {
+			numAlbums = data[data.length - 1].albumId;
+		}
+		dataCache = data;
+		setImg(dataCache[curImgIndex], dataCache.length, albumId);
+	} catch (error) {
+		alert('Error: ' + error.message);
+	}
 }
 
 /**
  * Sets the image and all related text for the currently selected photo.
  *
- * @param {number} imgData The JSON data of the currently selected photo.
+ * @param {Object} imgData The JSON data of the currently selected photo.
  * @param {number} albumLength The amount of photos in the filtered album.
  * @param {number} albumID The ID of the filtered album.
  */
-function setImg(imgData, albumLength, albumID){
+function setImg(imgData, albumLength, albumID) {
 	const thumbnail = document.getElementById("thumbnail");
 	const titleHeader = document.getElementById("titleHeader");
 	const pNumHeader = document.getElementById("pNumHeader");
@@ -66,7 +80,6 @@ function setImg(imgData, albumLength, albumID){
 		pNumHeader.innerText = `Current Photo: ${curImgIndex + 1} of ${albumLength}`;
 		aNumHeader.innerText = `Current Album: ${imgData.albumId} of ${numAlbums}`;
 		filterHeader.innerText = `Filter By: ${albumID ? `Album ${albumID}` : 'All Images'}`;
-		setBtns(albumLength);
 	} else {
 		thumbnail.src = "";
 		thumbnail.title = "";
@@ -85,17 +98,17 @@ function setImg(imgData, albumLength, albumID){
  *
  * @param {number} albumLength The amount of photos in the filtered album.
  */
-function setBtns(albumLength){
+function setBtns(albumLength) {
 	const prevBtn = document.getElementById("prevBtn");
 	const nextBtn = document.getElementById("nextBtn");
 	
-	prevBtn.disabled = curImgIndex === 0 ? true : false;
-	nextBtn.disabled = curImgIndex + 1 === albumLength || albumLength === 0 ? true : false;
+	prevBtn.disabled = curImgIndex === 0;
+	nextBtn.disabled = curImgIndex + 1 === albumLength || albumLength === 0;
 }
 
 const idVal = document.getElementById("idVal");
 idVal.addEventListener("keydown", function (e) {
 	if (e.code === "Enter") {
-		getData(0);
+		getImg(0);
 	}
 });

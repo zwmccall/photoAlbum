@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
-<body onload="getData();">
+<body onload="getImg(0);">
 <h1 id="filterHeader">Filter By: </h1>
 <h1 id="aNumHeader">Current Album: of </h1>
 <h2 id="pNumHeader">Current Photo: of </h2>
 <h2 id="titleHeader">Title: </h2>
 <img id="thumbnail" style="cursor:pointer;">
 <br>
-<button id="prevBtn" disabled onclick="getData(-1);">Prev</button>
-<button id="nextBtn" onclick="getData(1);">Next</button>
+<button id="prevBtn" disabled onclick="getImg(-1);">Prev</button>
+<button id="nextBtn" onclick="getImg(1);">Next</button>
 <br>
 <label for="idVal">Album ID: </label><input type="number" id="idVal" style="margin: 2px 0px;">
-<button onclick="getData(0);">Get Album</button>
+<button onclick="getImg(0);">Get Album</button>
 <br>
 
 <script src="photoAlbum.js"></script>
